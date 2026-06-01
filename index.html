@@ -99,6 +99,13 @@ section{padding:74px 0;position:relative}
 .cd .v{font-family:Sora;font-size:30px;font-weight:800;line-height:1}
 .cd .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
 .presale-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:20px}
+.buybox{display:flex;flex-direction:column;gap:12px;margin-top:16px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:16px;padding:18px}
+.bb-input{display:flex;align-items:center;gap:12px}
+.bb-input input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:var(--ink);font-size:16px;font-family:inherit}
+.bb-input input:focus{outline:none;border-color:rgba(34,211,238,.6)}
+.bb-eq{font-size:14px;color:var(--muted);white-space:nowrap}
+.bb-eq b{color:var(--ink)}
+#saleMsg{min-height:18px}
 
 /* anatomy */
 .anatomy{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;margin-top:24px}
@@ -258,7 +265,16 @@ footer{border-top:1px solid var(--line);padding:46px 0 30px;margin-top:30px;back
       </div>
       <div class="presale-foot">
         <span class="muted" style="font-size:13px"><span id="pctVal">0%</span> <span data-i18n="presale.funded">funded</span></span>
-        <a class="btn primary" id="buyBtn" data-i18n="presale.cta">Buy BTY now</a>
+      </div>
+      <div class="buybox">
+        <button class="btn ghost" id="connectBtn" data-i18n="presale.connect">Connect Wallet</button>
+        <div class="bb-input">
+          <input id="usdcIn" type="number" min="0" step="any" placeholder="USDC" />
+          <span class="bb-eq">≈ <b id="btyOut">0</b> BTY</span>
+        </div>
+        <button class="btn primary" id="buyBtn" data-i18n="presale.cta">Approve &amp; Buy</button>
+        <button class="btn primary" id="actBtn" style="display:none"></button>
+        <div id="saleMsg" class="small muted"></div>
       </div>
     </div>
   </div>
@@ -401,23 +417,26 @@ footer{border-top:1px solid var(--line);padding:46px 0 30px;margin-top:30px;back
 </footer>
 
 <script>
-/* ====== CONFIG — edit these ====== */
+/* ====== CONFIG ====== */
 const CONFIG = {
-  presaleStart: "2026-06-01T12:00:00Z",   // round start (UTC)
-  presaleDays: 14,                          // 2-week round
-  goal: 150000000,                          // presale allocation (BTY)
-  raised: null,                             // set a NUMBER for real sold amount; null = time-based fill
-  tokenPriceUsd: 0.01,                      // EDIT real presale price
+  presaleStart: "2026-06-01T00:00:00Z",   // matches on-chain start
+  presaleDays: 14,                          // 2-week round (ends 2026-06-15)
+  goal: 150000000,                          // hard cap (BTY)
+  tokenPriceUsd: 0.001,                     // 0.001 USDC / BTY
+  presale: "0xE2f11FACBCC729f51175F5C6AE0FDed2F4f5EC9d",
+  usdcAddr: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  btyAddr:  "0xc0a2F5d30FaB00e83BFa691f39831E6f6c8201CF",
+  chainId: 8453,                            // Base mainnet
+  rpc: "https://mainnet.base.org",
   whitepaper: "https://raw.githubusercontent.com/acaraydinn/botty-whitepaper/main/BOTTY-Whitepaper.pdf",
-  basescan: "https://basescan.org/token/0xc0a2F5d30FaB00e83BFa691f39831E6f6c8201CF",
-  buyUrl: "#presale"                        // EDIT presale buy link
+  basescan: "https://basescan.org/token/0xc0a2F5d30FaB00e83BFa691f39831E6f6c8201CF"
 };
 
 /* ====== i18n ====== */
 const I18N = {
   en:{ "nav.presale":"Presale","nav.product":"Product","nav.tokenomics":"Tokenomics","nav.roadmap":"Roadmap","nav.team":"Team","nav.join":"Join presale","nav.whitepaper":"Whitepaper",
     "hero.badge":"Live on Base · BTY","hero.t1":"Hydrate smarter.","hero.t2":"Earn as you do.","hero.sub":"BOTTY is a smart water bottle that tracks your hydration and key wellness signals — and rewards healthy habits with the BTY token on Base.","hero.cta1":"Join the presale","hero.cta2":"Read whitepaper","hero.stat1":"Fixed supply","hero.stat2":"Network (L2)","hero.stat3":"On-chain vesting",
-    "presale.eyebrow":"Investment round","presale.title":"BTY Presale","presale.sub":"A 2-week presale of the 15% presale allocation. The bar fills as the round progresses.","presale.live":"LIVE NOW","presale.sold":"Sold","presale.goal":"Goal","presale.endsin":"Presale ends in","presale.funded":"funded","presale.cta":"Buy BTY now",
+    "presale.eyebrow":"Investment round","presale.title":"BTY Presale","presale.sub":"A 2-week presale of the 15% presale allocation. The bar fills as the round progresses.","presale.live":"LIVE NOW","presale.sold":"Sold","presale.goal":"Goal","presale.endsin":"Presale ends in","presale.funded":"funded","presale.cta":"Approve & Buy","presale.connect":"Connect Wallet",
     "units.days":"Days","units.hours":"Hours","units.mins":"Minutes","units.secs":"Seconds",
     "product.eyebrow":"The device","product.title":"Meet the BOTTY bottle","product.sub":"Hydration tracking, wellness sensing and a fingerprint-locked cap — in one beautiful bottle.",
     "anat.cap":"Biometric cap","anat.capd":"Opens only for you — fingerprint unlock.","anat.win":"Water-level window","anat.wind":"Live remaining volume & intake log.","anat.body":"Smart body","anat.bodyd":"Rechargeable · Bluetooth · food-safe.","anat.bpm":"Heart rate (BPM)","anat.bpmd":"From sensor or paired smartwatch.","anat.spo2":"Blood oxygen (SpO₂)","anat.spo2d":"Wellness oxygen reading.","anat.stress":"Stress index","anat.stressd":"HRV-derived stress signal.","anat.hyd":"Hydration log","anat.hydd":"Timing, goals & history graph.",
@@ -429,7 +448,7 @@ const I18N = {
 
   tr:{ "nav.presale":"Ön Satış","nav.product":"Ürün","nav.tokenomics":"Tokenomi","nav.roadmap":"Yol Haritası","nav.team":"Ekip","nav.join":"Ön satışa katıl","nav.whitepaper":"Whitepaper",
     "hero.badge":"Base'de yayında · BTY","hero.t1":"Daha akıllı iç.","hero.t2":"İçtikçe kazan.","hero.sub":"BOTTY, su tüketimini ve temel sağlık verilerini takip eden akıllı bir matara — ve sağlıklı alışkanlıkları Base üzerindeki BTY token'ı ile ödüllendirir.","hero.cta1":"Ön satışa katıl","hero.cta2":"Whitepaper'ı oku","hero.stat1":"Sabit arz","hero.stat2":"Ağ (L2)","hero.stat3":"Zincirde vesting",
-    "presale.eyebrow":"Yatırım turu","presale.title":"BTY Ön Satışı","presale.sub":"%15 ön satış payının 2 haftalık turu. Bar tur ilerledikçe dolar.","presale.live":"CANLI","presale.sold":"Satılan","presale.goal":"Hedef","presale.endsin":"Ön satış bitişine","presale.funded":"tamamlandı","presale.cta":"BTY al",
+    "presale.eyebrow":"Yatırım turu","presale.title":"BTY Ön Satışı","presale.sub":"%15 ön satış payının 2 haftalık turu. Bar tur ilerledikçe dolar.","presale.live":"CANLI","presale.sold":"Satılan","presale.goal":"Hedef","presale.endsin":"Ön satış bitişine","presale.funded":"tamamlandı","presale.cta":"Onayla & Satın Al","presale.connect":"Cüzdan Bağla",
     "units.days":"Gün","units.hours":"Saat","units.mins":"Dakika","units.secs":"Saniye",
     "product.eyebrow":"Cihaz","product.title":"BOTTY matarasıyla tanış","product.sub":"Su takibi, sağlık ölçümü ve parmak iziyle açılan kapak — tek bir şık matarada.",
     "anat.cap":"Biyometrik kapak","anat.capd":"Sadece sana açılır — parmak izi kilidi.","anat.win":"Su seviyesi penceresi","anat.wind":"Anlık kalan miktar ve içme kaydı.","anat.body":"Akıllı gövde","anat.bodyd":"Şarj edilebilir · Bluetooth · gıdaya uygun.","anat.bpm":"Nabız (BPM)","anat.bpmd":"Sensörden veya akıllı saatten.","anat.spo2":"Kan oksijeni (SpO₂)","anat.spo2d":"Wellness oksijen ölçümü.","anat.stress":"Stres indeksi","anat.stressd":"HRV tabanlı stres sinyali.","anat.hyd":"Hidrasyon kaydı","anat.hydd":"Zaman, hedef ve geçmiş grafiği.",
@@ -477,8 +496,8 @@ sel.addEventListener("change",e=>{ lang=e.target.value; localStorage.setItem("bo
 document.getElementById("wpBtn").href=CONFIG.whitepaper;
 document.getElementById("wpBtn2").href=CONFIG.whitepaper;
 document.getElementById("scanBtn").href=CONFIG.basescan;
-document.getElementById("buyBtn").href=CONFIG.buyUrl;
 document.getElementById("goalVal").textContent=CONFIG.goal.toLocaleString("en-US");
+window.CONFIG=CONFIG; // expose for the web3 module
 
 /* burger */
 document.getElementById("burger").addEventListener("click",()=>document.getElementById("navlinks").classList.toggle("open"));
@@ -488,16 +507,8 @@ document.querySelectorAll("#navlinks a").forEach(a=>a.addEventListener("click",(
 const start=new Date(CONFIG.presaleStart).getTime();
 const end=start+CONFIG.presaleDays*86400000;
 function pad(n){return String(n).padStart(2,"0");}
-function tick(){
-  const now=Date.now();
-  let progress;
-  if(CONFIG.raised!=null){ progress=Math.min(CONFIG.raised/CONFIG.goal,1); }
-  else { progress=Math.min(Math.max((now-start)/(end-start),0),1); } // time-based demo fill
-  const sold=Math.round(progress*CONFIG.goal);
-  document.getElementById("bar").style.width=(progress*100).toFixed(1)+"%";
-  document.getElementById("soldVal").textContent=sold.toLocaleString("en-US");
-  document.getElementById("pctVal").textContent=(progress*100).toFixed(1)+"%";
-  let rem=Math.max(end-now,0);
+function tick(){ // countdown only; the bar is driven by real on-chain data (web3 module)
+  let rem=Math.max(end-Date.now(),0);
   document.getElementById("cd-d").textContent=pad(Math.floor(rem/86400000));
   document.getElementById("cd-h").textContent=pad(Math.floor(rem/3600000)%24);
   document.getElementById("cd-m").textContent=pad(Math.floor(rem/60000)%60);
@@ -510,6 +521,105 @@ const io=new IntersectionObserver((es)=>{es.forEach((e,i)=>{ if(e.isIntersecting
 document.querySelectorAll(".reveal").forEach((el,i)=>{ el.style.transitionDelay=((i%4)*90)+"ms"; io.observe(el); });
 
 applyLang(); tick();
+</script>
+
+<!-- ===== Web3 presale buy flow ===== -->
+<script type="module">
+import * as ethers from "https://esm.sh/ethers@6.13.4";
+const C = window.CONFIG;
+const PRESALE_ABI = [
+  "function buy(uint256 usdcAmount)",
+  "function tokensSold() view returns (uint256)",
+  "function hardCap() view returns (uint256)",
+  "function finalized() view returns (bool)",
+  "function success() view returns (bool)",
+  "function claimTokens()",
+  "function claimRefund()",
+  "function tokenAllocation(address) view returns (uint256)",
+  "function usdcContributed(address) view returns (uint256)",
+  "function claimed(address) view returns (bool)"
+];
+const ERC20_ABI = [
+  "function approve(address spender,uint256 amount) returns (bool)",
+  "function allowance(address owner,address spender) view returns (uint256)"
+];
+const $ = id => document.getElementById(id);
+const msg = t => { if($("saleMsg")) $("saleMsg").textContent = t; };
+const read = new ethers.JsonRpcProvider(C.rpc);
+const presaleR = new ethers.Contract(C.presale, PRESALE_ABI, read);
+let signer, account, presaleW, usdcW;
+
+async function refreshSale(){
+  try{
+    const [sold, hard, fin, succ] = await Promise.all([
+      presaleR.tokensSold(), presaleR.hardCap(), presaleR.finalized(), presaleR.success()
+    ]);
+    const soldN = Number(ethers.formatUnits(sold,18));
+    const hardN = Number(ethers.formatUnits(hard,18)) || C.goal;
+    const pct = hardN ? Math.min(soldN/hardN*100,100) : 0;
+    $("bar").style.width = pct.toFixed(1)+"%";
+    $("soldVal").textContent = Math.round(soldN).toLocaleString("en-US");
+    $("pctVal").textContent = pct.toFixed(1)+"%";
+    if(fin){
+      $("buyBtn").style.display="none"; $("usdcIn").parentElement.style.display="none";
+      const act=$("actBtn");
+      act.dataset.mode = succ ? "claim" : "refund";
+      act.textContent = succ ? "Claim BTY" : "Refund USDC";
+      act.style.display="inline-flex";
+    }
+  }catch(e){ /* read error, ignore */ }
+}
+function quoteBty(v){ const u=parseFloat(v||"0"); return isFinite(u)&&u>0 ? u/C.tokenPriceUsd : 0; }
+if($("usdcIn")) $("usdcIn").addEventListener("input",e=>{ $("btyOut").textContent = quoteBty(e.target.value).toLocaleString("en-US",{maximumFractionDigits:0}); });
+
+async function connect(){
+  if(!window.ethereum){ msg("Install MetaMask / a Web3 wallet."); return false; }
+  const bp = new ethers.BrowserProvider(window.ethereum);
+  await bp.send("eth_requestAccounts",[]);
+  const net = await bp.getNetwork();
+  if(Number(net.chainId)!==C.chainId){
+    try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x2105"}]}); }
+    catch(_){ msg("Switch your wallet to the Base network."); return false; }
+  }
+  signer = await bp.getSigner();
+  account = await signer.getAddress();
+  presaleW = new ethers.Contract(C.presale, PRESALE_ABI, signer);
+  usdcW = new ethers.Contract(C.usdcAddr, ERC20_ABI, signer);
+  $("connectBtn").textContent = account.slice(0,6)+"…"+account.slice(-4);
+  msg(""); refreshSale();
+  return true;
+}
+$("connectBtn").addEventListener("click",connect);
+
+$("buyBtn").addEventListener("click",async()=>{
+  try{
+    if(!signer && !(await connect())) return;
+    const human = parseFloat($("usdcIn").value||"0");
+    if(!(human>0)){ msg("Enter a USDC amount."); return; }
+    const amount = ethers.parseUnits(human.toString(),6);
+    msg("Checking USDC allowance…");
+    const allow = await usdcW.allowance(account, C.presale);
+    if(allow < amount){ msg("Approve USDC in your wallet…"); const a=await usdcW.approve(C.presale, amount); await a.wait(); }
+    msg("Confirm the purchase in your wallet…");
+    const tx = await presaleW.buy(amount); await tx.wait();
+    msg("✅ Purchase successful! You can claim your BTY after the sale ends.");
+    refreshSale();
+  }catch(e){ msg("⚠️ "+(e.shortMessage||e.reason||e.message||e)); }
+});
+
+$("actBtn").addEventListener("click",async()=>{
+  try{
+    if(!signer && !(await connect())) return;
+    const mode=$("actBtn").dataset.mode;
+    msg(mode==="claim"?"Claiming your BTY…":"Refunding your USDC…");
+    const tx = mode==="claim"? await presaleW.claimTokens() : await presaleW.claimRefund();
+    await tx.wait();
+    msg(mode==="claim"?"✅ BTY claimed!":"✅ USDC refunded!");
+    refreshSale();
+  }catch(e){ msg("⚠️ "+(e.shortMessage||e.reason||e.message||e)); }
+});
+
+refreshSale(); setInterval(refreshSale, 15000);
 </script>
 </body>
 </html>
