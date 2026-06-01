@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BOTTY — Smart Hydration & Health Companion</title>
+<meta name="description" content="BOTTY: a smart water bottle that tracks hydration and wellness, powered by the BTY token on Base.">
+<link rel="icon" href="assets/coin.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b16; --bg2:#0b1430; --ink:#e9f0fb; --muted:#9fb0ca;
+  --blue:#2563eb; --blue2:#1d4ed8; --cyan:#22d3ee; --teal:#2dd4bf;
+  --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.10);
+  --glow:0 0 50px rgba(34,211,238,.45);
+  --maxw:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink);
+  background:
+    radial-gradient(900px 500px at 80% -5%, rgba(34,211,238,.16), transparent 60%),
+    radial-gradient(800px 500px at 0% 10%, rgba(37,99,235,.18), transparent 55%),
+    linear-gradient(180deg,#070b16 0%, #0a1228 55%, #070b16 100%);
+  background-attachment:fixed;line-height:1.6;overflow-x:hidden;
+}
+h1,h2,h3,.brand{font-family:Sora,Inter,sans-serif;letter-spacing:-.02em}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+.grad{background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+.muted{color:var(--muted)}
+.center{text-align:center}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:13px 24px;font-weight:600;
+  font-size:15px;cursor:pointer;border:1px solid transparent;transition:.25s;white-space:nowrap}
+.btn.primary{background:linear-gradient(90deg,var(--blue),var(--cyan));color:#04121f;box-shadow:0 10px 30px rgba(34,211,238,.3)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(34,211,238,.45)}
+.btn.ghost{background:rgba(255,255,255,.04);border-color:var(--line);color:var(--ink)}
+.btn.ghost:hover{background:rgba(255,255,255,.09);border-color:rgba(34,211,238,.5)}
+
+/* header */
+header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+  background:rgba(7,11,22,.62);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;gap:18px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.brand img{width:34px;height:34px;filter:drop-shadow(0 4px 12px rgba(34,211,238,.55))}
+.navlinks{display:flex;gap:22px;margin-left:14px;font-size:14.5px}
+.navlinks a{color:var(--muted);transition:.2s}
+.navlinks a:hover{color:var(--ink)}
+.nav .spacer{flex:1}
+.lang{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid var(--line);
+  border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit;cursor:pointer}
+.lang option{background:#0b1430}
+.burger{display:none;background:none;border:0;color:var(--ink);font-size:22px;cursor:pointer}
+
+/* hero */
+.hero{position:relative;padding:70px 0 40px}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);
+  background:rgba(34,211,238,.08);color:#bdebff;border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 1.6s infinite}
+.hero h1{font-size:clamp(40px,6vw,74px);line-height:1.02;margin:18px 0 14px;font-weight:800}
+.hero p.lead{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:540px}
+.hero .cta{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+.hero .stats{display:flex;gap:26px;margin-top:30px;flex-wrap:wrap}
+.stat .n{font-family:Sora;font-size:22px;font-weight:700}
+.stat .l{font-size:12.5px;color:var(--muted)}
+.hero-visual{position:relative;display:flex;justify-content:center}
+.coin-hero{width:min(360px,80%);animation:float 6s ease-in-out infinite;filter:drop-shadow(0 30px 60px rgba(0,0,0,.5))}
+.coin-hero::selection{background:none}
+.hero-visual::before{content:"";position:absolute;inset:8% 12%;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,238,.35),transparent 60%);filter:blur(30px);z-index:-1;animation:pulse 4s infinite}
+
+/* section base */
+section{padding:74px 0;position:relative}
+.eyebrow{color:var(--cyan);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.s-title{font-size:clamp(28px,4vw,42px);font-weight:800;margin:10px 0 8px}
+.s-sub{color:var(--muted);max-width:640px}
+.s-head.center{margin:0 auto 40px}
+.s-head.center .s-sub{margin:0 auto}
+
+/* presale */
+.presale-card{background:linear-gradient(160deg,rgba(37,99,235,.16),rgba(34,211,238,.06));
+  border:1px solid var(--line);border-radius:24px;padding:34px;backdrop-filter:blur(8px);box-shadow:var(--glow)}
+.presale-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.live{display:inline-flex;align-items:center;gap:8px;color:#7CFC9A;font-weight:700;font-size:13px}
+.live .dot{width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 10px #34d399;animation:pulse 1.4s infinite}
+.bar-outer{height:26px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid var(--line);position:relative}
+.bar-inner{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--teal));
+  background-size:200% 100%;animation:shimmer 3s linear infinite;transition:width 1.4s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 24px rgba(34,211,238,.6)}
+.bar-meta{display:flex;justify-content:space-between;margin-top:12px;font-size:14px;flex-wrap:wrap;gap:8px}
+.bar-meta b{font-family:Sora}
+.countdown{display:flex;gap:12px;margin:22px 0 6px;flex-wrap:wrap}
+.cd{flex:1;min-width:70px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.cd .v{font-family:Sora;font-size:30px;font-weight:800;line-height:1}
+.cd .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+.presale-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:20px}
+
+/* anatomy */
+.anatomy{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;margin-top:24px}
+.anat-col{display:flex;flex-direction:column;gap:18px}
+.anat-col.right{align-items:flex-start}
+.anat-col.left{align-items:flex-end;text-align:right}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;max-width:280px;transition:.3s}
+.feat:hover{border-color:rgba(34,211,238,.55);transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.feat .ft{font-weight:700;display:flex;align-items:center;gap:8px}
+.feat.left .ft{justify-content:flex-end}
+.feat .num{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:12px;font-weight:700;
+  background:linear-gradient(90deg,var(--blue),var(--cyan));color:#04121f;flex:none}
+.feat .fd{font-size:13px;color:var(--muted);margin-top:4px}
+.bottle-stage{position:relative;display:flex;justify-content:center;align-items:center;padding:10px}
+.bottle{height:min(520px,62vh);width:auto;animation:float 6.5s ease-in-out infinite;filter:drop-shadow(0 26px 50px rgba(0,0,0,.55))}
+.bottle-stage::before{content:"";position:absolute;width:70%;height:70%;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,238,.30),transparent 62%);filter:blur(34px);animation:pulse 5s infinite}
+.ring{position:absolute;width:78%;aspect-ratio:1;border-radius:50%;border:1px dashed rgba(34,211,238,.25);animation:spin 26s linear infinite}
+.ring.r2{width:92%;animation-duration:40s;animation-direction:reverse;border-color:rgba(37,99,235,.18)}
+
+/* cards grid (features/tokenomics/roadmap) */
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;transition:.3s}
+.card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.45);box-shadow:0 18px 40px rgba(0,0,0,.4)}
+.card .ic{font-size:26px;margin-bottom:10px}
+.card h3{font-size:18px;margin-bottom:6px}
+.card p{font-size:14px;color:var(--muted)}
+
+/* allocation bar */
+.allocbar{display:flex;height:30px;border-radius:10px;overflow:hidden;margin:8px 0 14px;border:1px solid var(--line)}
+.allocbar span{height:100%}
+.alloclegend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted)}
+.alloclegend i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.tok-table{width:100%;border-collapse:collapse;margin-top:18px;font-size:14px}
+.tok-table th{ text-align:left;color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;border-bottom:1px solid var(--line)}
+.tok-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.phase{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;position:relative}
+.phase .pn{font-size:12px;color:var(--cyan);font-weight:700;letter-spacing:.08em}
+.phase h3{font-size:16px;margin:6px 0}
+.phase p{font-size:13px;color:var(--muted)}
+.phase.done{border-color:rgba(45,212,191,.5)}
+.phase.done .pn{color:var(--teal)}
+
+/* team */
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.member{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;text-align:center}
+.member .av{width:74px;height:74px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;font-family:Sora;font-weight:800;font-size:26px;
+  background:linear-gradient(160deg,var(--blue),var(--cyan));color:#04121f}
+.member .role{color:var(--cyan);font-size:13px;font-weight:600}
+.member .edu{color:var(--muted);font-size:12.5px;margin-top:6px}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:46px 0 30px;margin-top:30px;background:rgba(7,11,22,.5)}
+.foot-grid{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.foot a{color:var(--muted);display:block;margin:6px 0;font-size:14px}
+.foot a:hover{color:var(--ink)}
+.disc{color:var(--muted);font-size:12px;margin-top:24px;border-top:1px solid var(--line);padding-top:18px;max-width:880px}
+
+/* reveal animation */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+@keyframes float{0%,100%{transform:translateY(-10px)}50%{transform:translateY(12px)}}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes shimmer{to{background-position:200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* responsive */
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;text-align:center}
+  .hero .cta,.hero .stats{justify-content:center}
+  .hero p.lead{margin:0 auto}
+  .hero-visual{order:-1}
+  .anatomy{grid-template-columns:1fr}
+  .anat-col.left,.anat-col.right{align-items:stretch;text-align:left}
+  .feat.left .ft{justify-content:flex-start}
+  .feat{max-width:none}
+  .g3,.g4,.road,.team{grid-template-columns:1fr 1fr}
+  .navlinks{display:none}
+  .burger{display:block}
+  .navlinks.open{display:flex;position:absolute;top:68px;left:0;right:0;flex-direction:column;
+    background:#0b1430;border-bottom:1px solid var(--line);padding:16px 22px;gap:14px}
+}
+@media(max-width:560px){.g3,.g4,.road,.team{grid-template-columns:1fr}.bottle{height:46vh}}
+[dir="rtl"] .anat-col.left{text-align:right}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top"><img src="assets/coin.png" alt="BOTTY">BOTTY</a>
+    <nav class="navlinks" id="navlinks">
+      <a href="#presale" data-i18n="nav.presale">Presale</a>
+      <a href="#product" data-i18n="nav.product">Product</a>
+      <a href="#tokenomics" data-i18n="nav.tokenomics">Tokenomics</a>
+      <a href="#roadmap" data-i18n="nav.roadmap">Roadmap</a>
+      <a href="#team" data-i18n="nav.team">Team</a>
+    </nav>
+    <div class="spacer"></div>
+    <select class="lang" id="lang" aria-label="Language"></select>
+    <a class="btn primary" href="#presale" data-i18n="nav.join">Join presale</a>
+    <button class="burger" id="burger" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<a id="top"></a>
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="badge"><span class="dot"></span><span data-i18n="hero.badge">Live on Base · BTY</span></span>
+      <h1><span data-i18n="hero.t1">Hydrate smarter.</span><br><span class="grad" data-i18n="hero.t2">Earn as you do.</span></h1>
+      <p class="lead" data-i18n="hero.sub">BOTTY is a smart water bottle that tracks your hydration and key wellness signals — and rewards healthy habits with the BTY token on Base.</p>
+      <div class="cta">
+        <a class="btn primary" href="#presale" data-i18n="hero.cta1">Join the presale</a>
+        <a class="btn ghost" id="wpBtn" target="_blank" rel="noopener" data-i18n="hero.cta2">Read whitepaper</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">1B</div><div class="l" data-i18n="hero.stat1">Fixed supply</div></div>
+        <div class="stat"><div class="n">Base</div><div class="l" data-i18n="hero.stat2">Network (L2)</div></div>
+        <div class="stat"><div class="n">100%</div><div class="l" data-i18n="hero.stat3">On-chain vesting</div></div>
+      </div>
+    </div>
+    <div class="hero-visual"><img class="coin-hero" src="assets/coin.png" alt="BTY coin"></div>
+  </div>
+</section>
+
+<!-- PRESALE -->
+<section id="presale">
+  <div class="wrap">
+    <div class="s-head center reveal">
+      <div class="eyebrow" data-i18n="presale.eyebrow">Investment round</div>
+      <h2 class="s-title" data-i18n="presale.title">BTY Presale</h2>
+      <p class="s-sub" data-i18n="presale.sub">A 2-week presale of the 15% presale allocation. The bar fills as the round progresses.</p>
+    </div>
+    <div class="presale-card reveal">
+      <div class="presale-top">
+        <span class="live"><span class="dot"></span><span data-i18n="presale.live">LIVE NOW</span></span>
+        <span class="muted" id="priceLine"></span>
+      </div>
+      <div class="bar-outer"><div class="bar-inner" id="bar"></div></div>
+      <div class="bar-meta">
+        <span><span data-i18n="presale.sold">Sold</span>: <b id="soldVal">0</b> BTY</span>
+        <span><span data-i18n="presale.goal">Goal</span>: <b id="goalVal">150,000,000</b> BTY</span>
+      </div>
+      <div class="muted" style="margin-top:18px;font-size:13px" data-i18n="presale.endsin">Presale ends in</div>
+      <div class="countdown">
+        <div class="cd"><div class="v" id="cd-d">00</div><div class="k" data-i18n="units.days">Days</div></div>
+        <div class="cd"><div class="v" id="cd-h">00</div><div class="k" data-i18n="units.hours">Hours</div></div>
+        <div class="cd"><div class="v" id="cd-m">00</div><div class="k" data-i18n="units.mins">Minutes</div></div>
+        <div class="cd"><div class="v" id="cd-s">00</div><div class="k" data-i18n="units.secs">Seconds</div></div>
+      </div>
+      <div class="presale-foot">
+        <span class="muted" style="font-size:13px"><span id="pctVal">0%</span> <span data-i18n="presale.funded">funded</span></span>
+        <a class="btn primary" id="buyBtn" data-i18n="presale.cta">Buy BTY now</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT / ANATOMY -->
+<section id="product">
+  <div class="wrap">
+    <div class="s-head center reveal">
+      <div class="eyebrow" data-i18n="product.eyebrow">The device</div>
+      <h2 class="s-title" data-i18n="product.title">Meet the BOTTY bottle</h2>
+      <p class="s-sub" data-i18n="product.sub">Hydration tracking, wellness sensing and a fingerprint-locked cap — in one beautiful bottle.</p>
+    </div>
+    <div class="anatomy">
+      <div class="anat-col left">
+        <div class="feat left reveal"><div class="ft"><span data-i18n="anat.cap">Biometric cap</span><span class="num">1</span></div><div class="fd" data-i18n="anat.capd">Opens only for you — fingerprint unlock.</div></div>
+        <div class="feat left reveal"><div class="ft"><span data-i18n="anat.win">Water-level window</span><span class="num">2</span></div><div class="fd" data-i18n="anat.wind">Live remaining volume & intake log.</div></div>
+        <div class="feat left reveal"><div class="ft"><span data-i18n="anat.body">Smart body</span><span class="num">3</span></div><div class="fd" data-i18n="anat.bodyd">Rechargeable · Bluetooth · food-safe.</div></div>
+      </div>
+      <div class="bottle-stage reveal">
+        <div class="ring"></div><div class="ring r2"></div>
+        <img class="bottle" src="assets/bottle.png" alt="BOTTY smart bottle">
+      </div>
+      <div class="anat-col right">
+        <div class="feat reveal"><div class="ft"><span class="num">4</span><span data-i18n="anat.bpm">Heart rate (BPM)</span></div><div class="fd" data-i18n="anat.bpmd">From sensor or paired smartwatch.</div></div>
+        <div class="feat reveal"><div class="ft"><span class="num">5</span><span data-i18n="anat.spo2">Blood oxygen (SpO₂)</span></div><div class="fd" data-i18n="anat.spo2d">Wellness oxygen reading.</div></div>
+        <div class="feat reveal"><div class="ft"><span class="num">6</span><span data-i18n="anat.stress">Stress index</span></div><div class="fd" data-i18n="anat.stressd">HRV-derived stress signal.</div></div>
+        <div class="feat reveal"><div class="ft"><span class="num">7</span><span data-i18n="anat.hyd">Hydration log</span></div><div class="fd" data-i18n="anat.hydd">Timing, goals & history graph.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="about">
+  <div class="wrap">
+    <div class="s-head center reveal">
+      <div class="eyebrow" data-i18n="why.eyebrow">Why BOTTY</div>
+      <h2 class="s-title" data-i18n="why.title">Healthy habits, rewarded</h2>
+    </div>
+    <div class="grid g3">
+      <div class="card reveal"><div class="ic">💧</div><h3 data-i18n="why.c1t">Hydrate-to-earn</h3><p data-i18n="why.c1d">Earn BTY for hitting hydration goals, streaks and referrals — funded by the ecosystem pool.</p></div>
+      <div class="card reveal"><div class="ic">❤️</div><h3 data-i18n="why.c2t">All-in-one wellness</h3><p data-i18n="why.c2d">Hydration, heart rate, SpO₂ and stress — unified in one app and one bottle.</p></div>
+      <div class="card reveal"><div class="ic">🔒</div><h3 data-i18n="why.c3t">Yours & private</h3><p data-i18n="why.c3d">Fingerprint-locked cap and encrypted data — no health data on-chain.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENOMICS -->
+<section id="tokenomics">
+  <div class="wrap">
+    <div class="s-head center reveal">
+      <div class="eyebrow" data-i18n="tok.eyebrow">BTY token</div>
+      <h2 class="s-title" data-i18n="tok.title">Tokenomics</h2>
+      <p class="s-sub" data-i18n="tok.sub">1,000,000,000 BTY · fixed supply · all locks enforced on-chain.</p>
+    </div>
+    <div class="card reveal">
+      <div class="allocbar">
+        <span style="width:15%;background:#1e3a8a"></span><span style="width:15%;background:#2563eb"></span><span style="width:20%;background:#0891b2"></span><span style="width:20%;background:#06b6d4"></span><span style="width:12%;background:#0ea5e9"></span><span style="width:8%;background:#14b8a6"></span><span style="width:10%;background:#6366f1"></span>
+      </div>
+      <div class="alloclegend">
+        <span><i style="background:#1e3a8a"></i><span data-i18n="tok.seed">Seed</span> 15%</span>
+        <span><i style="background:#2563eb"></i><span data-i18n="tok.presale">Presale</span> 15%</span>
+        <span><i style="background:#0891b2"></i><span data-i18n="tok.team">Team</span> 20%</span>
+        <span><i style="background:#06b6d4"></i><span data-i18n="tok.eco">Ecosystem</span> 20%</span>
+        <span><i style="background:#0ea5e9"></i><span data-i18n="tok.treasury">Treasury</span> 12%</span>
+        <span><i style="background:#14b8a6"></i><span data-i18n="tok.liq">Liquidity</span> 8%</span>
+        <span><i style="background:#6366f1"></i><span data-i18n="tok.mkt">Marketing</span> 10%</span>
+      </div>
+      <table class="tok-table">
+        <thead><tr><th data-i18n="tok.alloc">Allocation</th><th data-i18n="tok.tge">At launch</th><th data-i18n="tok.lock">Lock / vesting</th></tr></thead>
+        <tbody>
+          <tr><td>Seed · 150M</td><td>0%</td><td data-i18n="tok.seedv">12mo lock → 12mo linear</td></tr>
+          <tr><td>Presale · 150M</td><td>100%</td><td data-i18n="tok.presv">Unlocked at launch</td></tr>
+          <tr><td>Team · 200M</td><td>0%</td><td data-i18n="tok.teamv">6mo lock → 24mo linear</td></tr>
+          <tr><td>Ecosystem · 200M</td><td>0%</td><td data-i18n="tok.ecov">Linear to 2035</td></tr>
+          <tr><td>Treasury · 120M</td><td>25%</td><td data-i18n="tok.trev">30M + linear to 2035</td></tr>
+          <tr><td>Liquidity · 80M</td><td>100%</td><td data-i18n="tok.liqv">Unlocked at launch</td></tr>
+          <tr><td>Marketing · 100M</td><td>0%</td><td data-i18n="tok.mktv">24mo linear</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="s-head center reveal">
+      <div class="eyebrow" data-i18n="road.eyebrow">Plan</div>
+      <h2 class="s-title" data-i18n="road.title">Roadmap</h2>
+    </div>
+    <div class="road">
+      <div class="phase done reveal"><div class="pn">✓ 2026</div><h3 data-i18n="road.p1t">Foundation</h3><p data-i18n="road.p1d">Token live & verified on Base; on-chain vesting.</p></div>
+      <div class="phase reveal"><div class="pn">PHASE 2</div><h3 data-i18n="road.p2t">Market & community</h3><p data-i18n="road.p2d">Liquidity, listings, audit, community.</p></div>
+      <div class="phase reveal"><div class="pn">PHASE 3</div><h3 data-i18n="road.p3t">Product</h3><p data-i18n="road.p3d">Device prototype & app beta.</p></div>
+      <div class="phase reveal"><div class="pn">PHASE 4</div><h3 data-i18n="road.p4t">Launch</h3><p data-i18n="road.p4d">Manufacturing & hydrate-to-earn.</p></div>
+      <div class="phase reveal"><div class="pn">PHASE 5</div><h3 data-i18n="road.p5t">Scale</h3><p data-i18n="road.p5d">Partnerships, staking, governance.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="wrap">
+    <div class="s-head center reveal">
+      <div class="eyebrow" data-i18n="team.eyebrow">People</div>
+      <h2 class="s-title" data-i18n="team.title">Team</h2>
+    </div>
+    <div class="team">
+      <div class="member reveal"><div class="av">MC</div><h3>Micheal Corzen</h3><div class="role" data-i18n="team.ceo">CEO</div><div class="edu">Sam Houston State University · ex-Binance</div></div>
+      <div class="member reveal"><div class="av">JL</div><h3>Juang Leasly</h3><div class="role" data-i18n="team.cto">CTO</div><div class="edu">Newcastle University · ex-Microsoft</div></div>
+      <div class="member reveal"><div class="av">KL</div><h3>Kendrick Lessie</h3><div class="role" data-i18n="team.ops">Operations Manager</div><div class="edu">Kyoto University · ex-Google</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div style="max-width:300px">
+        <a class="brand" href="#top" style="font-size:20px"><img src="assets/coin.png" style="width:30px;height:30px" alt="">BOTTY</a>
+        <p class="muted" style="font-size:13px;margin-top:10px" data-i18n="foot.tag">Smart hydration & health companion, powered by BTY on Base.</p>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:8px" data-i18n="foot.links">Links</div>
+        <a id="wpBtn2" target="_blank" rel="noopener" data-i18n="nav.whitepaper">Whitepaper</a>
+        <a id="scanBtn" target="_blank" rel="noopener">Basescan</a>
+        <a href="#presale" data-i18n="nav.presale">Presale</a>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:8px" data-i18n="foot.contact">Contact</div>
+        <a href="https://botty.ubasoft.net">botty.ubasoft.net</a>
+        <a href="mailto:botty@ubasoft.net">botty@ubasoft.net</a>
+      </div>
+    </div>
+    <p class="disc" data-i18n="foot.disc">Disclaimer: This website is for information only and is not financial advice or an offer of securities. BTY is a utility token; crypto assets are volatile and you may lose your entire investment. The BOTTY device is a wellness product, not a medical device. Do your own research and comply with your local laws.</p>
+    <p class="muted" style="font-size:12px;margin-top:14px">© 2026 BOTTY · UBASOFT</p>
+  </div>
+</footer>
+
+<script>
+/* ====== CONFIG — edit these ====== */
+const CONFIG = {
+  presaleStart: "2026-06-01T12:00:00Z",   // round start (UTC)
+  presaleDays: 14,                          // 2-week round
+  goal: 150000000,                          // presale allocation (BTY)
+  raised: null,                             // set a NUMBER for real sold amount; null = time-based fill
+  tokenPriceUsd: 0.01,                      // EDIT real presale price
+  whitepaper: "https://raw.githubusercontent.com/acaraydinn/botty-whitepaper/main/BOTTY-Whitepaper.pdf",
+  basescan: "https://basescan.org/token/0xc0a2F5d30FaB00e83BFa691f39831E6f6c8201CF",
+  buyUrl: "#presale"                        // EDIT presale buy link
+};
+
+/* ====== i18n ====== */
+const I18N = {
+  en:{ "nav.presale":"Presale","nav.product":"Product","nav.tokenomics":"Tokenomics","nav.roadmap":"Roadmap","nav.team":"Team","nav.join":"Join presale","nav.whitepaper":"Whitepaper",
+    "hero.badge":"Live on Base · BTY","hero.t1":"Hydrate smarter.","hero.t2":"Earn as you do.","hero.sub":"BOTTY is a smart water bottle that tracks your hydration and key wellness signals — and rewards healthy habits with the BTY token on Base.","hero.cta1":"Join the presale","hero.cta2":"Read whitepaper","hero.stat1":"Fixed supply","hero.stat2":"Network (L2)","hero.stat3":"On-chain vesting",
+    "presale.eyebrow":"Investment round","presale.title":"BTY Presale","presale.sub":"A 2-week presale of the 15% presale allocation. The bar fills as the round progresses.","presale.live":"LIVE NOW","presale.sold":"Sold","presale.goal":"Goal","presale.endsin":"Presale ends in","presale.funded":"funded","presale.cta":"Buy BTY now",
+    "units.days":"Days","units.hours":"Hours","units.mins":"Minutes","units.secs":"Seconds",
+    "product.eyebrow":"The device","product.title":"Meet the BOTTY bottle","product.sub":"Hydration tracking, wellness sensing and a fingerprint-locked cap — in one beautiful bottle.",
+    "anat.cap":"Biometric cap","anat.capd":"Opens only for you — fingerprint unlock.","anat.win":"Water-level window","anat.wind":"Live remaining volume & intake log.","anat.body":"Smart body","anat.bodyd":"Rechargeable · Bluetooth · food-safe.","anat.bpm":"Heart rate (BPM)","anat.bpmd":"From sensor or paired smartwatch.","anat.spo2":"Blood oxygen (SpO₂)","anat.spo2d":"Wellness oxygen reading.","anat.stress":"Stress index","anat.stressd":"HRV-derived stress signal.","anat.hyd":"Hydration log","anat.hydd":"Timing, goals & history graph.",
+    "why.eyebrow":"Why BOTTY","why.title":"Healthy habits, rewarded","why.c1t":"Hydrate-to-earn","why.c1d":"Earn BTY for hitting hydration goals, streaks and referrals — funded by the ecosystem pool.","why.c2t":"All-in-one wellness","why.c2d":"Hydration, heart rate, SpO₂ and stress — unified in one app and one bottle.","why.c3t":"Yours & private","why.c3d":"Fingerprint-locked cap and encrypted data — no health data on-chain.",
+    "tok.eyebrow":"BTY token","tok.title":"Tokenomics","tok.sub":"1,000,000,000 BTY · fixed supply · all locks enforced on-chain.","tok.seed":"Seed","tok.presale":"Presale","tok.team":"Team","tok.eco":"Ecosystem","tok.treasury":"Treasury","tok.liq":"Liquidity","tok.mkt":"Marketing","tok.alloc":"Allocation","tok.tge":"At launch","tok.lock":"Lock / vesting","tok.seedv":"12mo lock → 12mo linear","tok.presv":"Unlocked at launch","tok.teamv":"6mo lock → 24mo linear","tok.ecov":"Linear to 2035","tok.trev":"30M + linear to 2035","tok.liqv":"Unlocked at launch","tok.mktv":"24mo linear",
+    "road.eyebrow":"Plan","road.title":"Roadmap","road.p1t":"Foundation","road.p1d":"Token live & verified on Base; on-chain vesting.","road.p2t":"Market & community","road.p2d":"Liquidity, listings, audit, community.","road.p3t":"Product","road.p3d":"Device prototype & app beta.","road.p4t":"Launch","road.p4d":"Manufacturing & hydrate-to-earn.","road.p5t":"Scale","road.p5d":"Partnerships, staking, governance.",
+    "team.eyebrow":"People","team.title":"Team","team.ceo":"CEO","team.cto":"CTO","team.ops":"Operations Manager",
+    "foot.tag":"Smart hydration & health companion, powered by BTY on Base.","foot.links":"Links","foot.contact":"Contact","foot.disc":"Disclaimer: This website is for information only and is not financial advice or an offer of securities. BTY is a utility token; crypto assets are volatile and you may lose your entire investment. The BOTTY device is a wellness product, not a medical device. Do your own research and comply with your local laws." },
+
+  tr:{ "nav.presale":"Ön Satış","nav.product":"Ürün","nav.tokenomics":"Tokenomi","nav.roadmap":"Yol Haritası","nav.team":"Ekip","nav.join":"Ön satışa katıl","nav.whitepaper":"Whitepaper",
+    "hero.badge":"Base'de yayında · BTY","hero.t1":"Daha akıllı iç.","hero.t2":"İçtikçe kazan.","hero.sub":"BOTTY, su tüketimini ve temel sağlık verilerini takip eden akıllı bir matara — ve sağlıklı alışkanlıkları Base üzerindeki BTY token'ı ile ödüllendirir.","hero.cta1":"Ön satışa katıl","hero.cta2":"Whitepaper'ı oku","hero.stat1":"Sabit arz","hero.stat2":"Ağ (L2)","hero.stat3":"Zincirde vesting",
+    "presale.eyebrow":"Yatırım turu","presale.title":"BTY Ön Satışı","presale.sub":"%15 ön satış payının 2 haftalık turu. Bar tur ilerledikçe dolar.","presale.live":"CANLI","presale.sold":"Satılan","presale.goal":"Hedef","presale.endsin":"Ön satış bitişine","presale.funded":"tamamlandı","presale.cta":"BTY al",
+    "units.days":"Gün","units.hours":"Saat","units.mins":"Dakika","units.secs":"Saniye",
+    "product.eyebrow":"Cihaz","product.title":"BOTTY matarasıyla tanış","product.sub":"Su takibi, sağlık ölçümü ve parmak iziyle açılan kapak — tek bir şık matarada.",
+    "anat.cap":"Biyometrik kapak","anat.capd":"Sadece sana açılır — parmak izi kilidi.","anat.win":"Su seviyesi penceresi","anat.wind":"Anlık kalan miktar ve içme kaydı.","anat.body":"Akıllı gövde","anat.bodyd":"Şarj edilebilir · Bluetooth · gıdaya uygun.","anat.bpm":"Nabız (BPM)","anat.bpmd":"Sensörden veya akıllı saatten.","anat.spo2":"Kan oksijeni (SpO₂)","anat.spo2d":"Wellness oksijen ölçümü.","anat.stress":"Stres indeksi","anat.stressd":"HRV tabanlı stres sinyali.","anat.hyd":"Hidrasyon kaydı","anat.hydd":"Zaman, hedef ve geçmiş grafiği.",
+    "why.eyebrow":"Neden BOTTY","why.title":"Sağlıklı alışkanlık, ödüllü","why.c1t":"İçtikçe kazan","why.c1d":"Su hedeflerini tutturana, serilere ve davetlere BTY kazan — ekosistem havuzundan finanse edilir.","why.c2t":"Hepsi bir arada","why.c2d":"Hidrasyon, nabız, SpO₂ ve stres — tek app ve tek matarada.","why.c3t":"Sana ait & gizli","why.c3d":"Parmak iziyle kilitli kapak ve şifreli veri — zincirde sağlık verisi yok.",
+    "tok.eyebrow":"BTY token","tok.title":"Tokenomi","tok.sub":"1.000.000.000 BTY · sabit arz · tüm kilitler zincirde.","tok.seed":"Seed","tok.presale":"Ön satış","tok.team":"Takım","tok.eco":"Ekosistem","tok.treasury":"Hazine","tok.liq":"Likidite","tok.mkt":"Pazarlama","tok.alloc":"Tahsis","tok.tge":"Lansmanda","tok.lock":"Kilit / vesting","tok.seedv":"12ay kilit → 12ay doğrusal","tok.presv":"Lansmanda serbest","tok.teamv":"6ay kilit → 24ay doğrusal","tok.ecov":"2035'e doğrusal","tok.trev":"30M + 2035'e doğrusal","tok.liqv":"Lansmanda serbest","tok.mktv":"24ay doğrusal",
+    "road.eyebrow":"Plan","road.title":"Yol Haritası","road.p1t":"Temel","road.p1d":"Token Base'de yayında ve doğrulandı; zincirde vesting.","road.p2t":"Pazar & topluluk","road.p2d":"Likidite, listeleme, denetim, topluluk.","road.p3t":"Ürün","road.p3d":"Cihaz prototipi & app beta.","road.p4t":"Lansman","road.p4d":"Üretim & içtikçe kazan.","road.p5t":"Büyüme","road.p5d":"Ortaklıklar, staking, yönetişim.",
+    "team.eyebrow":"Ekip","team.title":"Ekip","team.ceo":"CEO","team.cto":"CTO","team.ops":"Operasyon Müdürü",
+    "foot.tag":"Akıllı hidrasyon & sağlık dostu, Base üzerinde BTY ile.","foot.links":"Bağlantılar","foot.contact":"İletişim","foot.disc":"Yasal uyarı: Bu site yalnızca bilgilendirme amaçlıdır; yatırım tavsiyesi veya menkul kıymet teklifi değildir. BTY bir utility token'dır; kripto varlıklar değişkendir ve yatırımının tamamını kaybedebilirsin. BOTTY cihazı tıbbi cihaz değil, bir wellness ürünüdür. Kendi araştırmanı yap ve yerel yasalara uy." },
+
+  es:{ "nav.presale":"Preventa","nav.product":"Producto","nav.tokenomics":"Tokenomía","nav.roadmap":"Hoja de ruta","nav.team":"Equipo","nav.join":"Unirse a la preventa","nav.whitepaper":"Whitepaper","hero.badge":"En vivo en Base · BTY","hero.t1":"Hidrátate mejor.","hero.t2":"Gana al hacerlo.","hero.sub":"BOTTY es una botella inteligente que mide tu hidratación y señales de bienestar, y recompensa hábitos sanos con el token BTY en Base.","hero.cta1":"Unirse a la preventa","hero.cta2":"Leer whitepaper","hero.stat1":"Suministro fijo","hero.stat2":"Red (L2)","hero.stat3":"Vesting on-chain","presale.eyebrow":"Ronda de inversión","presale.title":"Preventa BTY","presale.sub":"Preventa de 2 semanas del 15% asignado. La barra se llena conforme avanza.","presale.live":"EN VIVO","presale.sold":"Vendido","presale.goal":"Meta","presale.endsin":"La preventa termina en","presale.funded":"financiado","presale.cta":"Comprar BTY","units.days":"Días","units.hours":"Horas","units.mins":"Minutos","units.secs":"Segundos","product.eyebrow":"El dispositivo","product.title":"Conoce la botella BOTTY","product.sub":"Seguimiento de hidratación, sensores de bienestar y tapa con huella.","tok.eyebrow":"Token BTY","tok.title":"Tokenomía","tok.sub":"1.000.000.000 BTY · suministro fijo · bloqueos on-chain.","road.eyebrow":"Plan","road.title":"Hoja de ruta","team.eyebrow":"Personas","team.title":"Equipo","foot.links":"Enlaces","foot.contact":"Contacto" },
+
+  de:{ "nav.presale":"Vorverkauf","nav.product":"Produkt","nav.tokenomics":"Tokenomics","nav.roadmap":"Roadmap","nav.team":"Team","nav.join":"Am Vorverkauf teilnehmen","nav.whitepaper":"Whitepaper","hero.badge":"Live auf Base · BTY","hero.t1":"Klüger trinken.","hero.t2":"Dabei verdienen.","hero.sub":"BOTTY ist eine smarte Trinkflasche, die Hydration und Wellness misst und gesunde Gewohnheiten mit dem BTY-Token auf Base belohnt.","hero.cta1":"Am Vorverkauf teilnehmen","hero.cta2":"Whitepaper lesen","hero.stat1":"Feste Menge","hero.stat2":"Netzwerk (L2)","hero.stat3":"On-Chain-Vesting","presale.eyebrow":"Investitionsrunde","presale.title":"BTY Vorverkauf","presale.sub":"2-wöchiger Vorverkauf der 15%-Zuteilung. Der Balken füllt sich im Verlauf.","presale.live":"LIVE","presale.sold":"Verkauft","presale.goal":"Ziel","presale.endsin":"Vorverkauf endet in","presale.funded":"finanziert","presale.cta":"BTY kaufen","units.days":"Tage","units.hours":"Stunden","units.mins":"Minuten","units.secs":"Sekunden","product.eyebrow":"Das Gerät","product.title":"Die BOTTY-Flasche","product.sub":"Hydration, Wellness-Sensorik und Fingerabdruck-Deckel.","tok.eyebrow":"BTY Token","tok.title":"Tokenomics","tok.sub":"1.000.000.000 BTY · feste Menge · On-Chain-Sperren.","road.eyebrow":"Plan","road.title":"Roadmap","team.eyebrow":"Menschen","team.title":"Team","foot.links":"Links","foot.contact":"Kontakt" },
+
+  fr:{ "nav.presale":"Prévente","nav.product":"Produit","nav.tokenomics":"Tokenomics","nav.roadmap":"Feuille de route","nav.team":"Équipe","nav.join":"Rejoindre la prévente","nav.whitepaper":"Whitepaper","hero.badge":"En direct sur Base · BTY","hero.t1":"Hydratez-vous mieux.","hero.t2":"Gagnez en le faisant.","hero.sub":"BOTTY est une gourde connectée qui suit votre hydratation et votre bien-être, et récompense les bonnes habitudes avec le token BTY sur Base.","hero.cta1":"Rejoindre la prévente","hero.cta2":"Lire le whitepaper","hero.stat1":"Offre fixe","hero.stat2":"Réseau (L2)","hero.stat3":"Vesting on-chain","presale.eyebrow":"Tour d'investissement","presale.title":"Prévente BTY","presale.sub":"Prévente de 2 semaines de l'allocation de 15%. La barre se remplit au fil du tour.","presale.live":"EN DIRECT","presale.sold":"Vendu","presale.goal":"Objectif","presale.endsin":"La prévente se termine dans","presale.funded":"financé","presale.cta":"Acheter BTY","units.days":"Jours","units.hours":"Heures","units.mins":"Minutes","units.secs":"Secondes","product.eyebrow":"L'appareil","product.title":"La gourde BOTTY","product.sub":"Suivi d'hydratation, capteurs bien-être et bouchon à empreinte.","tok.eyebrow":"Token BTY","tok.title":"Tokenomics","tok.sub":"1 000 000 000 BTY · offre fixe · verrous on-chain.","road.eyebrow":"Plan","road.title":"Feuille de route","team.eyebrow":"Équipe","team.title":"Équipe","foot.links":"Liens","foot.contact":"Contact" },
+
+  pt:{ "nav.presale":"Pré-venda","nav.product":"Produto","nav.tokenomics":"Tokenomics","nav.roadmap":"Roteiro","nav.team":"Equipe","nav.join":"Entrar na pré-venda","nav.whitepaper":"Whitepaper","hero.badge":"Ao vivo na Base · BTY","hero.t1":"Hidrate-se melhor.","hero.t2":"Ganhe ao fazer isso.","hero.sub":"BOTTY é uma garrafa inteligente que monitora sua hidratação e bem-estar e recompensa hábitos saudáveis com o token BTY na Base.","hero.cta1":"Entrar na pré-venda","hero.cta2":"Ler whitepaper","hero.stat1":"Oferta fixa","hero.stat2":"Rede (L2)","hero.stat3":"Vesting on-chain","presale.eyebrow":"Rodada de investimento","presale.title":"Pré-venda BTY","presale.sub":"Pré-venda de 2 semanas da alocação de 15%. A barra enche conforme avança.","presale.live":"AO VIVO","presale.sold":"Vendido","presale.goal":"Meta","presale.endsin":"A pré-venda termina em","presale.funded":"financiado","presale.cta":"Comprar BTY","units.days":"Dias","units.hours":"Horas","units.mins":"Minutos","units.secs":"Segundos","product.eyebrow":"O dispositivo","product.title":"A garrafa BOTTY","product.sub":"Hidratação, sensores de bem-estar e tampa com impressão digital.","tok.eyebrow":"Token BTY","tok.title":"Tokenomics","tok.sub":"1.000.000.000 BTY · oferta fixa · travas on-chain.","road.eyebrow":"Plano","road.title":"Roteiro","team.eyebrow":"Pessoas","team.title":"Equipe","foot.links":"Links","foot.contact":"Contato" },
+
+  ru:{ "nav.presale":"Пресейл","nav.product":"Продукт","nav.tokenomics":"Токеномика","nav.roadmap":"Дорожная карта","nav.team":"Команда","nav.join":"Участвовать","nav.whitepaper":"Whitepaper","hero.badge":"В эфире на Base · BTY","hero.t1":"Пей умнее.","hero.t2":"Зарабатывай при этом.","hero.sub":"BOTTY — умная бутылка, которая отслеживает гидратацию и показатели здоровья и вознаграждает полезные привычки токеном BTY на Base.","hero.cta1":"Участвовать в пресейле","hero.cta2":"Читать whitepaper","hero.stat1":"Фикс. эмиссия","hero.stat2":"Сеть (L2)","hero.stat3":"Вестинг on-chain","presale.eyebrow":"Инвестраунд","presale.title":"Пресейл BTY","presale.sub":"2-недельный пресейл 15% аллокации. Полоса заполняется по ходу.","presale.live":"В ЭФИРЕ","presale.sold":"Продано","presale.goal":"Цель","presale.endsin":"До конца пресейла","presale.funded":"собрано","presale.cta":"Купить BTY","units.days":"Дней","units.hours":"Часов","units.mins":"Минут","units.secs":"Секунд","product.eyebrow":"Устройство","product.title":"Бутылка BOTTY","product.sub":"Контроль гидратации, сенсоры здоровья и крышка с отпечатком.","tok.eyebrow":"Токен BTY","tok.title":"Токеномика","tok.sub":"1 000 000 000 BTY · фикс. эмиссия · блокировки on-chain.","road.eyebrow":"План","road.title":"Дорожная карта","team.eyebrow":"Команда","team.title":"Команда","foot.links":"Ссылки","foot.contact":"Контакты" },
+
+  zh:{ "nav.presale":"预售","nav.product":"产品","nav.tokenomics":"代币经济","nav.roadmap":"路线图","nav.team":"团队","nav.join":"参与预售","nav.whitepaper":"白皮书","hero.badge":"已在 Base 上线 · BTY","hero.t1":"更聪明地喝水。","hero.t2":"喝水即赚。","hero.sub":"BOTTY 是一款智能水杯，追踪你的水分与健康指标，并用 Base 上的 BTY 代币奖励健康习惯。","hero.cta1":"参与预售","hero.cta2":"阅读白皮书","hero.stat1":"固定供应","hero.stat2":"网络 (L2)","hero.stat3":"链上锁仓","presale.eyebrow":"投资轮","presale.title":"BTY 预售","presale.sub":"为期两周的 15% 预售。进度条随轮次推进而填满。","presale.live":"进行中","presale.sold":"已售","presale.goal":"目标","presale.endsin":"预售结束倒计时","presale.funded":"已完成","presale.cta":"立即购买 BTY","units.days":"天","units.hours":"小时","units.mins":"分钟","units.secs":"秒","product.eyebrow":"设备","product.title":"认识 BOTTY 水杯","product.sub":"水分追踪、健康传感与指纹瓶盖。","tok.eyebrow":"BTY 代币","tok.title":"代币经济","tok.sub":"10 亿 BTY · 固定供应 · 链上锁仓。","road.eyebrow":"计划","road.title":"路线图","team.eyebrow":"团队","team.title":"团队","foot.links":"链接","foot.contact":"联系" },
+
+  ja:{ "nav.presale":"プレセール","nav.product":"製品","nav.tokenomics":"トークノミクス","nav.roadmap":"ロードマップ","nav.team":"チーム","nav.join":"プレセールに参加","nav.whitepaper":"ホワイトペーパー","hero.badge":"Base で公開中 · BTY","hero.t1":"賢く水分補給。","hero.t2":"飲んで稼ぐ。","hero.sub":"BOTTYは水分と健康指標を記録するスマートボトル。Base上のBTYトークンで健康習慣を報酬化します。","hero.cta1":"プレセールに参加","hero.cta2":"ホワイトペーパーを読む","hero.stat1":"固定供給","hero.stat2":"ネットワーク (L2)","hero.stat3":"オンチェーン権利確定","presale.eyebrow":"投資ラウンド","presale.title":"BTY プレセール","presale.sub":"15%配分の2週間プレセール。進行に応じてバーが満ちます。","presale.live":"開催中","presale.sold":"販売済","presale.goal":"目標","presale.endsin":"プレセール終了まで","presale.funded":"達成","presale.cta":"BTYを購入","units.days":"日","units.hours":"時間","units.mins":"分","units.secs":"秒","product.eyebrow":"デバイス","product.title":"BOTTYボトル","product.sub":"水分管理・健康センサー・指紋ロックのキャップ。","tok.eyebrow":"BTY トークン","tok.title":"トークノミクス","tok.sub":"10億 BTY · 固定供給 · オンチェーンロック。","road.eyebrow":"計画","road.title":"ロードマップ","team.eyebrow":"チーム","team.title":"チーム","foot.links":"リンク","foot.contact":"連絡先" },
+
+  ar:{ "nav.presale":"البيع المسبق","nav.product":"المنتج","nav.tokenomics":"اقتصاد التوكن","nav.roadmap":"خارطة الطريق","nav.team":"الفريق","nav.join":"انضم للبيع المسبق","nav.whitepaper":"الورقة البيضاء","hero.badge":"مباشر على Base · BTY","hero.t1":"اشرب بذكاء.","hero.t2":"واربح وأنت تشرب.","hero.sub":"BOTTY زجاجة ذكية تتابع ترطيبك ومؤشرات صحتك وتكافئ العادات الصحية بعملة BTY على شبكة Base.","hero.cta1":"انضم للبيع المسبق","hero.cta2":"اقرأ الورقة البيضاء","hero.stat1":"إمداد ثابت","hero.stat2":"الشبكة (L2)","hero.stat3":"إطلاق على السلسلة","presale.eyebrow":"جولة استثمار","presale.title":"البيع المسبق لـ BTY","presale.sub":"بيع مسبق لمدة أسبوعين لحصة 15%. يمتلئ الشريط مع تقدم الجولة.","presale.live":"مباشر الآن","presale.sold":"المُباع","presale.goal":"الهدف","presale.endsin":"ينتهي البيع المسبق خلال","presale.funded":"تم تمويله","presale.cta":"اشترِ BTY","units.days":"أيام","units.hours":"ساعات","units.mins":"دقائق","units.secs":"ثوانٍ","product.eyebrow":"الجهاز","product.title":"زجاجة BOTTY","product.sub":"تتبع الترطيب، استشعار الصحة، وغطاء ببصمة الإصبع.","tok.eyebrow":"عملة BTY","tok.title":"اقتصاد التوكن","tok.sub":"1,000,000,000 BTY · إمداد ثابت · أقفال على السلسلة.","road.eyebrow":"الخطة","road.title":"خارطة الطريق","team.eyebrow":"الفريق","team.title":"الفريق","foot.links":"روابط","foot.contact":"تواصل" }
+};
+const LANGS=[["en","English"],["tr","Türkçe"],["es","Español"],["de","Deutsch"],["fr","Français"],["pt","Português"],["ru","Русский"],["zh","中文"],["ja","日本語"],["ar","العربية"]];
+
+let lang = (localStorage.getItem("botty_lang")) || (navigator.language||"en").slice(0,2);
+if(!I18N[lang]) lang="en";
+
+function t(k){ return (I18N[lang]&&I18N[lang][k]) || I18N.en[k] || k; }
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.documentElement.dir = (lang==="ar")?"rtl":"ltr";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent=t(el.getAttribute("data-i18n")); });
+  document.getElementById("priceLine").textContent = "1 BTY ≈ $"+CONFIG.tokenPriceUsd;
+}
+
+/* lang select */
+const sel=document.getElementById("lang");
+LANGS.forEach(([c,n])=>{ const o=document.createElement("option"); o.value=c; o.textContent=n; if(c===lang)o.selected=true; sel.appendChild(o); });
+sel.addEventListener("change",e=>{ lang=e.target.value; localStorage.setItem("botty_lang",lang); applyLang(); });
+
+/* links */
+document.getElementById("wpBtn").href=CONFIG.whitepaper;
+document.getElementById("wpBtn2").href=CONFIG.whitepaper;
+document.getElementById("scanBtn").href=CONFIG.basescan;
+document.getElementById("buyBtn").href=CONFIG.buyUrl;
+document.getElementById("goalVal").textContent=CONFIG.goal.toLocaleString("en-US");
+
+/* burger */
+document.getElementById("burger").addEventListener("click",()=>document.getElementById("navlinks").classList.toggle("open"));
+document.querySelectorAll("#navlinks a").forEach(a=>a.addEventListener("click",()=>document.getElementById("navlinks").classList.remove("open")));
+
+/* presale + countdown */
+const start=new Date(CONFIG.presaleStart).getTime();
+const end=start+CONFIG.presaleDays*86400000;
+function pad(n){return String(n).padStart(2,"0");}
+function tick(){
+  const now=Date.now();
+  let progress;
+  if(CONFIG.raised!=null){ progress=Math.min(CONFIG.raised/CONFIG.goal,1); }
+  else { progress=Math.min(Math.max((now-start)/(end-start),0),1); } // time-based demo fill
+  const sold=Math.round(progress*CONFIG.goal);
+  document.getElementById("bar").style.width=(progress*100).toFixed(1)+"%";
+  document.getElementById("soldVal").textContent=sold.toLocaleString("en-US");
+  document.getElementById("pctVal").textContent=(progress*100).toFixed(1)+"%";
+  let rem=Math.max(end-now,0);
+  document.getElementById("cd-d").textContent=pad(Math.floor(rem/86400000));
+  document.getElementById("cd-h").textContent=pad(Math.floor(rem/3600000)%24);
+  document.getElementById("cd-m").textContent=pad(Math.floor(rem/60000)%60);
+  document.getElementById("cd-s").textContent=pad(Math.floor(rem/1000)%60);
+}
+setInterval(tick,1000);
+
+/* reveal on scroll (staggered) */
+const io=new IntersectionObserver((es)=>{es.forEach((e,i)=>{ if(e.isIntersecting){ const els=[...document.querySelectorAll(".reveal:not(.in)")]; e.target.style.transitionDelay=(Math.min(els.indexOf(e.target),0)*0)+"ms"; e.target.classList.add("in"); io.unobserve(e.target);} });},{threshold:.12});
+document.querySelectorAll(".reveal").forEach((el,i)=>{ el.style.transitionDelay=((i%4)*90)+"ms"; io.observe(el); });
+
+applyLang(); tick();
+</script>
+</body>
+</html>
